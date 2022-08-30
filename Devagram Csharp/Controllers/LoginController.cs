@@ -1,6 +1,8 @@
 ﻿using Devagram_Csharp.Dtos;
 using Devagram_Csharp.Models;
+using Devagram_Csharp.Repository;
 using Devagram_Csharp.Services;
+using Devagram_Csharp.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,10 +15,12 @@ namespace Devagram_Csharp.Controllers
     {
 
         private readonly ILogger<LoginController> _logger;
+        public readonly IUsuarioRepository _usuarioRepository;
 
-        public LoginController (ILogger<LoginController> logger)
+        public LoginController (ILogger<LoginController> logger, IUsuarioRepository usuarioRepository)
         {
             _logger = logger;
+            _usuarioRepository = usuarioRepository;
         }
 
         [HttpPost]
@@ -25,37 +29,30 @@ namespace Devagram_Csharp.Controllers
         {
             try
             {
-                if (!String.IsNullOrEmpty(loginrequisicao.Senha) && !String.IsNullOrEmpty(loginrequisicao.Email) && 
+                if (!String.IsNullOrEmpty(loginrequisicao.Senha) && !String.IsNullOrEmpty(loginrequisicao.Email) &&
                     !String.IsNullOrWhiteSpace(loginrequisicao.Senha) && !String.IsNullOrWhiteSpace(loginrequisicao.Email))
                 {
-                    string email = "caick_silva5@hotmail.com";
-                    string senha = "caick123";
 
-                    if(loginrequisicao.Email == email && loginrequisicao.Senha == senha)
+                    Usuario usuario = _usuarioRepository.GetUsuarioPorLoginSenha(loginrequisicao.Email.ToLower(), MD5Utils.GerarHashMD5(loginrequisicao.Senha));
+
+                    if(usuario != null)
                     {
-                        Usuario usuario = new Usuario()
-                        {
-                            Email = loginrequisicao.Email,
-                            Id = 12,
-                            Nome = "Caick da SIlva"
-
-                        };
-
                         return Ok(new LoginRespostaDto()
                         {
                             Email = usuario.Email,
                             Nome = usuario.Nome,
                             Token = TokenService.CriarToken(usuario)
                         });
-                    }else
+                    }
+                    else
                     {
                         return BadRequest(new ErrorRespostaDto()
                         {
                             Descricao = "Email ou senha invalido",
                             Status = StatusCodes.Status400BadRequest
-                            
                         });
                     }
+
                 }
                 else
                 {
@@ -65,13 +62,14 @@ namespace Devagram_Csharp.Controllers
                         Status = StatusCodes.Status500InternalServerError
                     });
                 }
+                
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError("Ocorreu um erro no login: " + ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorRespostaDto()
                 {
-                    Descricao = "Ocorreu um erro ao fazer o login" + ex.Message ,
+                    Descricao = "Ocorreu um erro ao fazer o login" + ex.Message,
                     Status = StatusCodes.Status500InternalServerError
                 });
             }

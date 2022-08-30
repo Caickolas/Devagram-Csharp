@@ -11,6 +11,12 @@ namespace Devagram_Csharp.Repository.Impl
         {
             _context = context;
         }
+
+        public Usuario GetUsuarioPorLoginSenha(string email, string senha)
+        {
+            return _context.Usuarios.FirstOrDefault(U =>U.Email == email && U.Senha == senha);
+        }
+
         public void Salvar(Usuario usuario)
         {
            _context.Add(usuario);

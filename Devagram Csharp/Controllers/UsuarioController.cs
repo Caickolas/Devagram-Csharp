@@ -48,6 +48,7 @@ namespace Devagram_Csharp.Controllers
             
         }
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult SalvarUsuario([FromBody] Usuario usuario)
         {
             try
@@ -96,7 +97,7 @@ namespace Devagram_Csharp.Controllers
 
                 }
 
-                return Ok(usuario);
+                return Ok("Usuario foi salvo com sucesso");
             }
             catch (Exception e)
             {

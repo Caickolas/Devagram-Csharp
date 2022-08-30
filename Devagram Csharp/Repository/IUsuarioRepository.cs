@@ -7,6 +7,8 @@ namespace Devagram_Csharp.Repository
         public void Salvar(Usuario usuario);
 
         public bool VerificarEmail(string email);
+
+        Usuario GetUsuarioPorLoginSenha(string email, string senha);
     }
 
 
