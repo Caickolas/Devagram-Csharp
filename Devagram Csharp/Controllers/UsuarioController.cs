@@ -1,9 +1,11 @@
 ﻿using Devagram_Csharp.Dtos;
 using Devagram_Csharp.Models;
 using Devagram_Csharp.Repository;
+using Devagram_Csharp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 
 namespace Devagram_Csharp.Controllers
 {
@@ -13,28 +15,25 @@ namespace Devagram_Csharp.Controllers
     public class UsuarioController : BaseController
     {
         public readonly ILogger<UsuarioController> _logger;
-        public readonly IUsuarioRepository _usuarioRepository;
 
-        public UsuarioController(ILogger<UsuarioController> logger, IUsuarioRepository usuarioRepository)
+
+        public UsuarioController(ILogger<UsuarioController> logger, IUsuarioRepository usuarioRepository) : base(usuarioRepository)
         {
             _logger = logger;
-            _usuarioRepository = usuarioRepository;
         }
 
         [HttpGet]
-
         public IActionResult ObterUsuario()
         {
             try
             {
-                Usuario usuario = new Usuario()
-                {
-                    Email = "caick_silva5@hotmail.com",
-                    Nome = "Caick",
-                    Id = 12
-                };
+                Usuario usuario = LerToken();
 
-                return Ok(usuario);
+                return Ok(new UsuarioRespostaDto
+                {
+                    Nome = usuario.Nome,
+                    Email = usuario.Email
+                });
             }
             catch(Exception e)
             {
@@ -47,25 +46,27 @@ namespace Devagram_Csharp.Controllers
             }
             
         }
+
+
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult SalvarUsuario([FromBody] Usuario usuario)
+        public IActionResult SalvarUsuario([FromForm] UsuarioRequisicaoDto usuariodto)
         {
             try
             {
-                if(usuario != null)
+                if(usuariodto != null)
                 {
                     var erros = new List<string>();
-                    if(string.IsNullOrEmpty(usuario.Nome) || string.IsNullOrWhiteSpace(usuario.Nome))
+                    if(string.IsNullOrEmpty(usuariodto.Nome) || string.IsNullOrWhiteSpace(usuariodto.Nome))
                     {
                         erros.Add("Nome invalido");
                     }
 
-                    if (string.IsNullOrEmpty(usuario.Email) || string.IsNullOrWhiteSpace(usuario.Email) || !usuario.Email.Contains("@" ))                    {
+                    if (string.IsNullOrEmpty(usuariodto.Email) || string.IsNullOrWhiteSpace(usuariodto.Email) || !usuariodto.Email.Contains("@" ))                    {
                         erros.Add("Email invalido");
                     }
 
-                    if (string.IsNullOrEmpty(usuario.Senha) || string.IsNullOrWhiteSpace(usuario.Senha))
+                    if (string.IsNullOrEmpty(usuariodto.Senha) || string.IsNullOrWhiteSpace(usuariodto.Senha))
                     {
                         erros.Add("senha invalido");
                     }
@@ -78,6 +79,16 @@ namespace Devagram_Csharp.Controllers
                             Erros = erros
                         });
                     }
+
+                    CosmicService cosmicservice = new CosmicService();
+
+                    Usuario usuario = new Usuario()
+                    {
+                        Email = usuariodto.Email,
+                        Senha = usuariodto.Senha,
+                        Nome = usuariodto.Nome,
+                        FotoPerfil = cosmicservice.EnviarImagem(new ImagemDTO { Imagem = usuariodto.FotoPerfil, Nome = usuariodto.Nome.Replace(" ","") })
+                    };
 
                     usuario.Senha = Utils.MD5Utils.GerarHashMD5(usuario.Senha);
                     usuario.Email = usuario.Email.ToLower();

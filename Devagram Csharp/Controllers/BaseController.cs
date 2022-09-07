@@ -1,11 +1,33 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Devagram_Csharp.Models;
+using Devagram_Csharp.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Devagram_Csharp.Controllers
 {
     [Authorize]
-    public class BaseController :ControllerBase
+    public class BaseController : ControllerBase
     {
-        
+        protected readonly IUsuarioRepository _usuarioRepository;
+
+        public BaseController(IUsuarioRepository usuarioRepository)
+        {
+            _usuarioRepository = usuarioRepository;
+        }
+
+        protected Usuario LerToken()
+        {
+            var idUsuario = User.Claims.Where(c => c.Type == ClaimTypes.Sid).Select(c => c.Value).FirstOrDefault();
+
+            if(string.IsNullOrEmpty(idUsuario))
+            {
+                return null;
+            }
+            else
+            {
+                return _usuarioRepository.GetUsuarioPorId(int.Parse(idUsuario));
+            }
+        }
     }
 }
