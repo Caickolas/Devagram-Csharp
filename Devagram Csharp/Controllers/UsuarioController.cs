@@ -47,6 +47,57 @@ namespace Devagram_Csharp.Controllers
             
         }
 
+        [HttpPut]
+        public IActionResult AtualizarUsuario([FromForm] UsuarioRequisicaoDto usuariodto)
+        {
+            try 
+            {
+                Usuario usuario = LerToken();
+                if (usuariodto != null)
+                {
+                    var erros = new List<string>();
+
+                    if (string.IsNullOrEmpty(usuariodto.Nome) || string.IsNullOrWhiteSpace(usuariodto.Nome))
+                    {
+                        erros.Add("Nome invalido");
+                    }
+
+                    if (erros.Count > 0)
+                    {
+                        return BadRequest(new ErrorRespostaDto()
+                        {
+                            Status = StatusCodes.Status400BadRequest,
+                            Erros = erros
+                        });
+                    }
+                    else
+                    {
+
+
+
+                        CosmicService cosmicservice = new CosmicService();
+
+                        usuario.FotoPerfil = cosmicservice.EnviarImagem(new ImagemDTO {Imagem = usuariodto.FotoPerfil, Nome = usuariodto.Nome.Replace(" ", "")});
+                        usuario.Nome = usuariodto.Nome;
+
+                        _usuarioRepository.AtualizarUsuario(usuario);
+
+                    }
+                }
+                        return Ok("Usuario foi salvo com sucesso!");
+
+                }
+            catch (Exception e)
+            {
+                _logger.LogError("Ocorreu um erro ao salvar o usuario");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorRespostaDto()
+                {
+                    Descricao = "Ocorreu o seguinte erro:" + e.Message,
+                    Status = StatusCodes.Status500InternalServerError
+                });
+            }
+        }
+
 
         [HttpPost]
         [AllowAnonymous]
@@ -57,6 +108,7 @@ namespace Devagram_Csharp.Controllers
                 if(usuariodto != null)
                 {
                     var erros = new List<string>();
+
                     if(string.IsNullOrEmpty(usuariodto.Nome) || string.IsNullOrWhiteSpace(usuariodto.Nome))
                     {
                         erros.Add("Nome invalido");
