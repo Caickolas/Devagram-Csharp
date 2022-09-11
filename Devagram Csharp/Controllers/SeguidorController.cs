@@ -56,7 +56,7 @@ namespace Devagram_Csharp.Controllers
             } 
             catch (Exception e)
             {
-                _logger.LogError("Ocorreu um erro ao obter o usuario");
+                _logger.LogError("Ocorreu um erro ao Seguir/Desseguir");
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorRespostaDto()
                 {
                     Descricao = "Ocorreu o seguinte erro:" + e.Message,
