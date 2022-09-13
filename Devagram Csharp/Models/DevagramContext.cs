@@ -11,5 +11,6 @@ namespace Devagram_Csharp.Models
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Seguidor> Seguidores { get; set; }
         public DbSet<Publicacao> Publicacoes { get; set; }
+        public DbSet<Comentario> Comentarios { get; set; }
     }
 }
