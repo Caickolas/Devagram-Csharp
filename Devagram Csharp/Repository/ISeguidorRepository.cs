@@ -8,5 +8,7 @@ namespace Devagram_Csharp.Repository
         public bool Desseguir(Seguidor seguidor);
         
         public Seguidor GetSeguidor(int idseguidor, int idseguido);
+        int GetQtdeSeguidores(int idUsuario);
+        int GetQtdeSeguindo(int idUsuario);
     }
 }

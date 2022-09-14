@@ -19,6 +19,11 @@ namespace Devagram_Csharp.Repository.Impl
 
         }
 
+        public int GetQtdePublicacoes(int idUsuario)
+        {
+            return _context.Publicacoes.Count(p => p.IdUsuario == idUsuario);
+        }
+
         public Usuario GetUsuarioPorId(int id)
         {
             return _context.Usuarios.FirstOrDefault(u => u.Id == id );
@@ -27,6 +32,11 @@ namespace Devagram_Csharp.Repository.Impl
         public Usuario GetUsuarioPorLoginSenha(string email, string senha)
         {
             return _context.Usuarios.FirstOrDefault(U =>U.Email == email && U.Senha == senha);
+        }
+
+        public List<Usuario> GetUsuarioPorNome(string nome)
+        {
+            return _context.Usuarios.Where(u => u.Nome.Contains(nome)).ToList();
         }
 
         public void Salvar(Usuario usuario)
