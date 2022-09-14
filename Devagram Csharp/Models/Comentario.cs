@@ -5,7 +5,7 @@ namespace Devagram_Csharp.Models
     public class Comentario
     {
         public int Id { get; set; } 
-        public string Descricao { get; set; }
+        public string Descricao { get; set; }       
         public int IdUsuario { get; set; }
         public int IdPublicacao { get; set; }
 
